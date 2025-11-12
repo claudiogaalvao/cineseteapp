@@ -6,61 +6,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/fragment_people_details_header"
-        layout="@layout/content_people_details_header" />
+<!--    <include-->
+<!--        android:id="@+id/fragment_people_details_header"-->
+<!--        layout="@layout/content_people_details_header" />-->
 
-    <TextView
-        android:id="@+id/fragment_people_details_biography_label"
-        android:text="@string/biography_label"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/fragment_people_details_biography"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="8dp"
-        android:textColor="@color/white"
-        android:maxLines="4"
-        android:ellipsize="end"
-        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_biography_label"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In orci ligula, mollis ut gravida et, vehicula finibus lorem. Ut tempor eget elit quis imperdiet. Integer massa massa, suscipit vitae iaculis sed, imperdiet in neque. Vestibulum sit amet eros sem. Fusce faucibus semper quam et mollis. Nulla condimentum rhoncus felis. In."/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/fragment_people_details_movies_label"
-        android:text="@string/movies_with_label"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_biography"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+<!--    <TextView-->
+<!--        android:id="@+id/fragment_people_details_biography_label"-->
+<!--        android:text="@string/biography_label"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        android:layout_marginTop="12dp"-->
+<!--        android:textSize="18sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textColor="@color/white"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/composeView"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/fragment_people_details_movies_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_movies_label"
-        android:layout_marginTop="8dp"
-        android:layout_marginHorizontal="4dp"
-        android:layout_marginBottom="42dp"
-        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:spanCount="3"
-        tools:itemCount="13"
-        tools:listitem="@layout/item_simple_poster"/>
+<!--    <TextView-->
+<!--        android:id="@+id/fragment_people_details_biography"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:maxLines="4"-->
+<!--        android:ellipsize="end"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_biography_label"-->
+<!--        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In orci ligula, mollis ut gravida et, vehicula finibus lorem. Ut tempor eget elit quis imperdiet. Integer massa massa, suscipit vitae iaculis sed, imperdiet in neque. Vestibulum sit amet eros sem. Fusce faucibus semper quam et mollis. Nulla condimentum rhoncus felis. In."/>-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/fragment_people_details_movies_label"-->
+<!--        android:text="@string/movies_with_label"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginHorizontal="16dp"-->
+<!--        android:layout_marginTop="12dp"-->
+<!--        android:textSize="18sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textColor="@color/white"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/composeView"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/fragment_people_details_movies_recyclerview"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/fragment_people_details_movies_label"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginHorizontal="4dp"-->
+<!--        android:layout_marginBottom="42dp"-->
+<!--        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
+<!--        tools:spanCount="3"-->
+<!--        tools:itemCount="13"-->
+<!--        tools:listitem="@layout/item_simple_poster"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

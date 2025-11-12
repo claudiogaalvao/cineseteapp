@@ -88,6 +88,7 @@
     <string name="filter_alertdialog_negative">Cancelar</string>
 
     <!-- People details -->
+    <string name="birthday_with_age">%s • %s años</string>
     <string name="age_label">• %s años</string>
     <string name="biography_label">Biografía</string>
     <string name="movies_with_label">Películas con esta persona</string>

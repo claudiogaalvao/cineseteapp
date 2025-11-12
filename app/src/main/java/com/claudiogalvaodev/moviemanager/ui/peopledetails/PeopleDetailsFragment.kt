@@ -4,30 +4,45 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
+import coil3.compose.AsyncImage
 import com.claudiogalvaodev.moviemanager.R
-import com.claudiogalvaodev.moviemanager.databinding.FragmentPeopleDetailsBinding
-import com.claudiogalvaodev.moviemanager.ui.adapter.SimplePosterAdapter
+import com.claudiogalvaodev.moviemanager.ui.components.PosterList
 import com.claudiogalvaodev.moviemanager.ui.model.MovieModel
 import com.claudiogalvaodev.moviemanager.ui.model.PersonModel
 import com.claudiogalvaodev.moviemanager.ui.moviedetails.MovieDetailsActivity
-import com.claudiogalvaodev.moviemanager.utils.extensions.launchWhenResumed
 import com.claudiogalvaodev.moviemanager.utils.format.FormatUtils
-import com.squareup.picasso.Picasso
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.math.roundToInt
 
 class PeopleDetailsFragment : Fragment() {
     private lateinit var viewModel: PeopleDetailsViewModel
-    private val binding by lazy {
-        FragmentPeopleDetailsBinding.inflate(layoutInflater)
-    }
-    private lateinit var moviesAdapter: SimplePosterAdapter
 
     private val args: PeopleDetailsFragmentArgs by navArgs()
 
@@ -42,122 +57,20 @@ class PeopleDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         viewModel = getViewModel { parametersOf(personId, leastOneMovieId) }
-        viewModel.isFirstLoading = true
 
-        getPeopleDetails()
-        getMovies()
-        setupAdapter()
-        setupRecyclerView()
-        setupObservers()
-        setListeners()
-    }
-
-    private fun getPeopleDetails() {
-        viewModel.getPersonDetails()
-    }
-
-    private fun getMovies() {
-        viewModel.getMovies()
-    }
-
-    private fun bindHeaderInfo(person: PersonModel?) {
-        person?.let {
-            Picasso.with(binding.root.context).load(it.getProfileImageUrl())
-                .into(binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsProfilePhoto)
-            binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsName.text = it.name
-            binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsDepartment.text = it.knownForDepartment
-        }
-    }
-
-    private fun bindPersonDetailsInfo(person: PersonModel?) {
-        person?.let {
-            if(it.biography.isNullOrEmpty()) {
-                binding.fragmentPeopleDetailsBiographyLabel.visibility = View.GONE
-            } else {
-                binding.fragmentPeopleDetailsBiographyLabel.visibility = View.VISIBLE
-                binding.fragmentPeopleDetailsBiography.text = it.biography
-            }
-            person.birthday?.let { birthday ->
-                binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsBirthdate.text =
-                    FormatUtils.dateFromAmericanFormatToDateWithMonthName(birthday)
-            }
-
-            binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsAge.text = if(!person.deathday.isNullOrEmpty()) {
-                "${context?.getString(R.string.separator_bullet)} ${FormatUtils.dateFromAmericanFormatToDateWithMonthName(person.deathday)}"
-            } else {
-                person.birthday?.let { birthday ->
-                    context?.getString(R.string.age_label, FormatUtils.dateFromAmericanFormatToAge(birthday))
-                }
-            }
-
-            binding.fragmentPeopleDetailsHeader.fragmentPeopleDetailsBirthplace.text = person.placeOfBirth
-        }
-    }
-
-    private fun setupAdapter() {
-        moviesAdapter = SimplePosterAdapter().apply {
-            onItemClick = { movieId ->
-                val destination = findNavController().previousBackStackEntry?.destination?.displayName.toString()
-                if(movieId == leastOneMovieId.toInt() && destination.contains("movieDetailsFragment")) {
-                    findNavController().popBackStack()
-                } else {
-                    goToMovieDetails(movieId)
-                }
-            }
-            onFullyViewedListener = {
-                if(!viewModel.isMoviesLoading) {
-                    viewModel.isMoviesLoading = true
-                    getMovies()
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val personDetails by viewModel.personDetails.collectAsState()
+                val movies by viewModel.movies.collectAsState()
+                personDetails?.let { person ->
+                    PersonDetailsScreen(
+                        person = person,
+                        movies = movies
+                    )
                 }
             }
         }
-    }
-
-    private fun setupRecyclerView() {
-        val layout = GridLayoutManager(context, calcNumberOfColumns())
-        binding.fragmentPeopleDetailsMoviesRecyclerview.apply {
-            layoutManager = layout
-            adapter = moviesAdapter
-        }
-    }
-
-    private fun setupObservers() {
-        launchWhenResumed {
-            viewModel.movies.collectLatest { movies ->
-                setMoviesList(movies)
-                if(viewModel.getSecondPage) {
-                    getMovies()
-                }
-            }
-        }
-
-        launchWhenResumed {
-            viewModel.personDetails.collectLatest { person ->
-                bindHeaderInfo(person)
-                bindPersonDetailsInfo(person)
-            }
-        }
-    }
-
-    private fun setListeners() {
-        binding.fragmentPeopleDetailsBiography.setOnClickListener {
-            binding.fragmentPeopleDetailsBiography.apply {
-                maxLines = Integer.MAX_VALUE
-                isClickable = false
-            }
-
-        }
-    }
-
-    private fun setMoviesList(movieModels: List<MovieModel>) {
-        moviesAdapter.submitList(movieModels)
     }
 
     private fun goToMovieDetails(movieId: Int) {
@@ -165,22 +78,105 @@ class PeopleDetailsFragment : Fragment() {
             startActivity(MovieDetailsActivity.newInstance(it, movieId, ""))
         }
     }
+}
 
-    private fun calcNumberOfColumns(): Int {
-        val displayMetrics = resources.displayMetrics
-        val dpWidth = displayMetrics.widthPixels / displayMetrics.density
+@Composable
+fun PersonDetailsScreen(
+    person: PersonModel,
+    movies: List<MovieModel>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement
+            .spacedBy(8.dp)
+    ) {
+        PersonDetailsHeader(
+            name = person.name,
+            role = person.knownForDepartment,
+            birthday = person.birthday,
+            birthplace = person.placeOfBirth,
+            photoUrl = person.getProfileImageUrl()
+        )
+        Biography(person.biography)
 
-        val spaceBetween = 12
-        val marginStart = 16
-        val marginEnd = 16
-        val widthEachImage = 120
+        Text(
+            text = stringResource(R.string.movies_with_label),
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
 
-        var countImages = dpWidth - marginStart - marginEnd
-        countImages /= (widthEachImage+spaceBetween)
-        val numberOfColumns = countImages.roundToInt()
-        if(numberOfColumns > 4) {
-            viewModel.getSecondPage = true
-        }
-        return numberOfColumns
+        PosterList(
+            imagesUrl = movies.map { it.getPosterUrl() }
+        )
     }
+}
+
+@Composable
+fun PersonDetailsHeader(
+    name: String,
+    role: String,
+    birthday: String?,
+    birthplace: String?,
+    photoUrl: String
+) {
+    val formattedBirthday = FormatUtils
+        .dateFromAmericanFormatToDateWithMonthName(birthday ?: "") ?: "N/A"
+    val age = FormatUtils.dateFromAmericanFormatToAge(birthday ?: "") ?: "N/A"
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AsyncImage(
+            modifier = Modifier
+                .height(180.dp)
+                .width(120.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            model = photoUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = name,
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = role,
+                color = Color.LightGray
+            )
+            Text(
+                text = stringResource(R.string.birthday_with_age, formattedBirthday, age),
+                color = Color.LightGray
+            )
+            Text(
+                text = birthplace ?: "N/A",
+                color = Color.LightGray
+            )
+        }
+    }
+}
+
+@Composable
+fun ColumnScope.Biography(
+    biography: String
+) {
+    Text(
+        text = stringResource(R.string.biography_label),
+        fontSize = 18.sp,
+        color = Color.White,
+        fontWeight = FontWeight.Bold
+    )
+    Text(
+        text = biography,
+        color = Color.White,
+        maxLines = 4,
+        overflow = TextOverflow.Ellipsis
+    )
 }

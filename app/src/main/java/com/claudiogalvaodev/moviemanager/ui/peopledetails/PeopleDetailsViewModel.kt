@@ -37,6 +37,11 @@ class PeopleDetailsViewModel(
     var isFirstLoading: Boolean = false
     var getSecondPage: Boolean = false
 
+    init {
+        getPersonDetails()
+        getMovies()
+    }
+
     private fun getFilter(): List<FilterModel> {
         val filters: MutableList<FilterModel> = mutableListOf()
         filters.add(FilterModel(type = FilterType.SORT_BY, nameRes = null, currentValue = OrderByConstants.POPULARITY_DESC))
